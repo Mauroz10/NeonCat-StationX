@@ -13,20 +13,30 @@ jobs:
     steps:
       - name: Obtener proyecto
         uses: actions/checkout@v4
+
       - name: Comprobar archivos obligatorios
         run: |
           test -s project.godot
           test -s scenes/game.tscn
           test -s scripts/game.gd
           test -s export_presets.cfg
+
+      - name: Preparar plantillas y firma de prueba
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates" build
+          cp -a /root/.local/share/godot/export_templates/. "$HOME/.local/share/godot/export_templates/"
+          test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore build/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
       - name: Importar recursos y comprobar proyecto
         run: godot --headless --path . --editor --quit
+
       - name: Generar APK de prueba
         run: |
-          mkdir -p build
-          godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
           test -s build/NEON_CAT_STATION_X.apk
           unzip -t build/NEON_CAT_STATION_X.apk | tail -1
+
       - name: Entregar APK
         uses: actions/upload-artifact@v4
         with:
