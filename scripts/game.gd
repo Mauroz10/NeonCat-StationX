@@ -7,9 +7,9 @@ const WORLD_END := 3300.0
 const GATE_X := 2700.0
 const SECRET_LEFT := 500.0
 const SECRET_RIGHT := 670.0
-const CAT_SHEET := preload("res://assets/astro_gato.jpg")
-const CAT_KEY_SHADER := preload("res://shaders/remove_green.gdshader")
-const CAT_SCALE := 0.15
+const CAT_SHEET := preload("res://assets/astro_gato_clean.png")
+const CAT_REGION := Rect2(135, 80, 984, 1095)
+const CAT_SCALE := 55.0 / 1095.0
 const FLOOR_Y := 454.0
 const MOVE_SPEED := 260.0
 const GRAVITY := 1150.0
@@ -51,14 +51,6 @@ var enemy_shots: Array[Dictionary] = []
 var afterimages: Array[Dictionary] = []
 var cat_sprite: Sprite2D
 var echo_sprites: Array[Sprite2D] = []
-var cat_regions: Array[Rect2] = [
-	Rect2(40, 80, 310, 365),  # 1: quieto, arma lista
-	Rect2(350, 80, 300, 365), # 2: arma secundaria
-	Rect2(660, 80, 330, 365), # 3: dispara
-	Rect2(1030, 80, 280, 365), # 4: primer paso / salto
-	Rect2(1330, 80, 275, 365), # 5: segundo paso / dash
-	Rect2(1610, 80, 318, 365) # 6: quieto alternativo
-]
 var enemies: Array[Dictionary] = []
 var pickups: Array[Dictionary] = []
 var platforms := [Rect2(350, 372, 140, 18), Rect2(525, 310, 135, 16), Rect2(695, 337, 150, 18),
@@ -66,14 +58,12 @@ var platforms := [Rect2(350, 372, 140, 18), Rect2(525, 310, 135, 16), Rect2(695,
 	Rect2(2930, 373, 140, 18)]
 
 func _ready() -> void:
-	var sprite_material := ShaderMaterial.new()
-	sprite_material.shader = CAT_KEY_SHADER
-	cat_sprite = make_cat_sprite(sprite_material)
+	cat_sprite = make_cat_sprite()
 	cat_sprite.name = "AstroGato"
 	cat_sprite.z_index = 2
 	add_child(cat_sprite)
 	for i in range(5):
-		var echo := make_cat_sprite(sprite_material)
+		var echo := make_cat_sprite()
 		echo.name = "DashEcho%d" % i
 		echo.modulate = Color(0.35, 1.0, 0.70, 0.0)
 		echo.visible = false
@@ -82,15 +72,14 @@ func _ready() -> void:
 		echo_sprites.append(echo)
 	reset_level()
 
-func make_cat_sprite(sprite_material: ShaderMaterial) -> Sprite2D:
+func make_cat_sprite() -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = CAT_SHEET
 	sprite.region_enabled = true
-	sprite.region_rect = cat_regions[0]
+	sprite.region_rect = CAT_REGION
 	sprite.centered = false
 	sprite.scale = Vector2(CAT_SCALE, CAT_SCALE)
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	sprite.material = sprite_material
 	return sprite
 
 func reset_level() -> void:
@@ -297,10 +286,9 @@ func current_cat_pose() -> int:
 	if absf(velocity.x) > 10.0: return 3 + int(tick * 8.0) % 2
 	return 0
 
-func place_cat_sprite(sprite: Sprite2D, point: Vector2, pose: int, look: float) -> void:
-	var frame_rect := cat_regions[pose]
-	sprite.region_rect = frame_rect
-	sprite.position = Vector2(point.x - camera_x - frame_rect.size.x * CAT_SCALE * 0.5, point.y - 38.0)
+func place_cat_sprite(sprite: Sprite2D, point: Vector2, _pose: int, look: float) -> void:
+	# Una sola pose aprobada hasta que existan fotogramas de animación.
+	sprite.position = Vector2(point.x - camera_x - CAT_REGION.size.x * CAT_SCALE * 0.5, point.y + 17.0 - 55.0)
 	sprite.flip_h = look < 0.0
 
 func update_cat_sprites() -> void:
