@@ -62,6 +62,7 @@ var boss_phase := "windup"
 var boss_timer := 1.2
 var boss_attack_index := 0
 var boss_invulnerable := 0.0
+var boss_rain_target := 6200.0
 var unlock_timer := 0.0
 var invulnerable := 0.0
 var fire_timer := 0.0
@@ -204,6 +205,7 @@ func reset_level() -> void:
 	boss_timer = 1.2
 	boss_attack_index = 0
 	boss_invulnerable = 0.0
+	boss_rain_target = 6200.0
 	unlock_timer = 0.0
 	dash_timer = 0.0
 	hurt_timer = 0.0
@@ -597,13 +599,15 @@ func update_boss(delta: float) -> void:
 				enemy_shots.append({"pos": Vector2(boss_x - 42.0, FLOOR_Y - 10.0), "vel": Vector2(-340.0, 0.0), "life": 2.1, "kind": "wave"})
 			2: # Descarga vertical en tres posiciones cerca del jugador.
 				for offset in [-85.0, 0.0, 85.0]:
-					enemy_shots.append({"pos": Vector2(clampf(player.x + offset, 6000.0, 6520.0), 70.0), "vel": Vector2(0.0, 300.0), "life": 1.5, "kind": "rain"})
+					enemy_shots.append({"pos": Vector2(clampf(boss_rain_target + offset, 6000.0, 6520.0), 70.0), "vel": Vector2(0.0, 300.0), "life": 1.5, "kind": "rain"})
 		boss_phase = "exposed"
 		boss_timer = 2.0
 	else:
 		boss_attack_index += 1
 		boss_phase = "windup"
 		boss_timer = 1.05
+		if boss_attack_index % 3 == 2:
+			boss_rain_target = clampf(player.x, 6085.0, 6435.0)
 
 func update_enemy_shots(delta: float) -> void:
 	var player_defeated := false
@@ -708,6 +712,11 @@ func _draw() -> void:
 	draw_rect(Rect2(8340, FLOOR_Y - 85, 25, 85), Color("278cba"))
 	draw_circle(Vector2(8352, FLOOR_Y - 94), 18, CYAN)
 	label("SALIDA", Vector2(8302, FLOOR_Y - 126), 18, CYAN)
+	if not boss_defeated and boss_phase == "windup" and boss_attack_index % 3 == 2 and player.x > 5940.0:
+		for offset in [-85.0, 0.0, 85.0]:
+			var strike_x: float = clampf(boss_rain_target + offset, 6000.0, 6520.0)
+			draw_rect(Rect2(strike_x - 12.0, FLOOR_Y - 5.0, 24.0, 5.0), Color("ff5de5"))
+			draw_line(Vector2(strike_x, 85.0), Vector2(strike_x, FLOOR_Y - 8.0), Color(1.0, 0.36, 0.9, 0.28), 2.0)
 	for enemy in enemies:
 		var c := Vector2(enemy.x, enemy.y)
 		if enemy.has("boss"):
@@ -718,11 +727,14 @@ func _draw() -> void:
 				draw_circle(c + Vector2(0, 12), 14, ORANGE if boss_phase == "exposed" else Color("263358"))
 				draw_circle(c + Vector2(0, 12), 7, Color("fff4aa") if boss_phase == "exposed" else Color("8197bb"))
 			elif boss_phase == "exposed":
-				draw_arc(c + BOSS_CORE_OFFSET, 17.0, 0.0, TAU, 20, Color("ffce64"), 2.0)
+				draw_arc(c + BOSS_CORE_OFFSET, 20.0 + sin(tick * 12.0) * 3.0, 0.0, TAU, 20, Color("ffffff") if boss_invulnerable > 0.0 else Color("ffce64"), 3.0)
 			if boss_phase == "windup":
 				draw_arc(c, 60.0 if boss_sprite != null else 52.0, 0, TAU, 24, ORANGE, 3)
 				label(["ABANICO", "ONDA", "DESCARGA"][boss_attack_index % 3], c + Vector2(-43, -118 if boss_sprite != null else -71), 14, ORANGE)
+			else:
+				label("¡DISPARA AL NÚCLEO!", c + Vector2(-98, -147 if boss_sprite != null else -83), 17, Color("ffdf83"))
 			var bar_width := 96.0 if boss_sprite != null else 78.0
+			draw_rect(Rect2(c.x - bar_width * 0.5, c.y - (118.0 if boss_sprite != null else 56.0), bar_width, 6), Color("283453"))
 			draw_rect(Rect2(c.x - bar_width * 0.5, c.y - (118.0 if boss_sprite != null else 56.0), bar_width * float(enemy.hp) / 6.0, 6), ORANGE)
 		else:
 			if enemy.has("train"):
