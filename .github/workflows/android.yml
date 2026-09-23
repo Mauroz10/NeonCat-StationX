@@ -17,13 +17,13 @@ jobs:
           mv /root/.local/share/godot/export_templates/* ~/.local/share/godot/export_templates/
 
       - name: Crear Directorio de Salida
-        run: mkdir -v -p build/android
+        run: mkdir -v -p build/
 
       - name: Exportar APK con Godot
-        run: godot -v --headless --export-release "Android" build/android/NeonCatStation.apk
+        run: godot -v --headless --export-release "Android" build/NEON_CAT_STATION_X.apk
 
       - name: Guardar APK Final
         uses: actions/upload-artifact@v4
         with:
           name: Juego-Android-APK
-          path: build/android/NeonCatStation.apk
+          path: build/NEON_CAT_STATION_X.apk
