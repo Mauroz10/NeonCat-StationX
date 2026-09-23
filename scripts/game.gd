@@ -13,6 +13,13 @@ const CAT_REGION := Rect2(135, 80, 984, 1095)
 const CAT_SCALE := 55.0 / 1095.0
 const RUN_FRAME := Rect2(0, 0, 543, 724)
 const RUN_SCALE := 55.0 / 650.0
+const JUMP_FRAME_WIDTH := 887.0
+const JUMP_SCALE := 55.0 / 850.0
+const JUMP_V2_SCALE := 55.0 / 696.0
+const JUMP_V2_REGIONS := [
+	Rect2(48, 168, 495, 520), Rect2(544, 21, 503, 684),
+	Rect2(1093, 9, 536, 696), Rect2(1629, 24, 521, 676)
+]
 const IDLE_REGIONS := [
 	Rect2(12, 15, 531, 651), Rect2(544, 73, 538, 589),
 	Rect2(1095, 25, 533, 681), Rect2(1634, 109, 530, 553)
@@ -62,6 +69,9 @@ var echo_sprites: Array[Sprite2D] = []
 var clean_cat_texture: Texture2D
 var run_cat_texture: Texture2D
 var idle_cat_texture: Texture2D
+var jump_cat_texture: Texture2D
+var jump_v2_texture: Texture2D
+var jump_elapsed := 0.0
 var old_cat_regions: Array[Rect2] = [
 	Rect2(40, 80, 310, 365), Rect2(350, 80, 300, 365),
 	Rect2(660, 80, 330, 365), Rect2(1030, 80, 280, 365),
@@ -81,6 +91,10 @@ func _ready() -> void:
 		run_cat_texture = load("res://assets/astro_gato_run.png") as Texture2D
 	if ResourceLoader.exists("res://assets/astro_gato_idle.png"):
 		idle_cat_texture = load("res://assets/astro_gato_idle.png") as Texture2D
+	if ResourceLoader.exists("res://assets/astro_gato_jump.png"):
+		jump_cat_texture = load("res://assets/astro_gato_jump.png") as Texture2D
+	if ResourceLoader.exists("res://assets/astro_gato_jump_v2.png"):
+		jump_v2_texture = load("res://assets/astro_gato_jump_v2.png") as Texture2D
 	cat_sprite = make_cat_sprite()
 	cat_sprite.name = "AstroGato"
 	cat_sprite.z_index = 2
@@ -114,6 +128,7 @@ func reset_level() -> void:
 	player = Vector2(88, FLOOR_Y - 17)
 	checkpoint = player
 	velocity = Vector2.ZERO
+	jump_elapsed = 0.0
 	max_health = 5
 	health = max_health
 	score = 0
@@ -207,7 +222,9 @@ func _physics_process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT) or touch.right: direction += 1.0
 	if direction != 0.0: facing = direction
 	var was_on_ground := on_ground()
-	if jump_requested and was_on_ground: velocity.y = JUMP_SPEED
+	if jump_requested and was_on_ground:
+		velocity.y = JUMP_SPEED
+		jump_elapsed = 0.0
 	jump_requested = false
 	if dash_requested and dash_unlocked and dash_cooldown <= 0.0:
 		dash_timer = 0.24
@@ -223,6 +240,7 @@ func _physics_process(delta: float) -> void:
 	velocity.y += GRAVITY * delta
 	var old_feet := player.y + 17.0
 	player += velocity * delta
+	if not was_on_ground or velocity.y < 0.0: jump_elapsed += delta
 	player.x = clampf(player.x, 18.0, WORLD_END - 20.0)
 	# Desvío elevado: se ve al principio, pero solo se entra tras desbloquear dash.
 	if dash_timer <= 0.0 and player.y - 17.0 < 410.0:
@@ -316,7 +334,20 @@ func current_cat_pose() -> int:
 
 func place_cat_sprite(sprite: Sprite2D, point: Vector2, pose: int, look: float) -> void:
 	if clean_cat_texture != null:
-		if run_cat_texture != null and pose >= 3 and pose <= 4 and dash_timer <= 0.0 and absf(velocity.x) > 10.0 and on_ground():
+		if jump_v2_texture != null and dash_timer <= 0.0 and not on_ground():
+			var jump_frame := 0 if jump_elapsed < 0.11 else (1 if velocity.y < -110.0 else (2 if velocity.y < 180.0 else 3))
+			var jump_rect: Rect2 = JUMP_V2_REGIONS[jump_frame]
+			sprite.texture = jump_v2_texture
+			sprite.region_rect = jump_rect
+			sprite.scale = Vector2.ONE * JUMP_V2_SCALE
+			sprite.position = Vector2(point.x - camera_x - jump_rect.size.x * JUMP_V2_SCALE * 0.5, point.y - 16.0 - jump_rect.size.y * JUMP_V2_SCALE * 0.5)
+		elif jump_cat_texture != null and dash_timer <= 0.0 and not on_ground():
+			var jump_frame := 0 if velocity.y < 0.0 else 1
+			sprite.texture = jump_cat_texture
+			sprite.region_rect = Rect2(jump_frame * JUMP_FRAME_WIDTH, 0.0, JUMP_FRAME_WIDTH, 887.0)
+			sprite.scale = Vector2.ONE * JUMP_SCALE
+			sprite.position = Vector2(point.x - camera_x - JUMP_FRAME_WIDTH * JUMP_SCALE * 0.5, point.y - 17.0 - 425.0 * JUMP_SCALE)
+		elif run_cat_texture != null and pose >= 3 and pose <= 4 and dash_timer <= 0.0 and absf(velocity.x) > 10.0 and on_ground():
 			var frame := int(tick * 9.0) % 4
 			sprite.texture = run_cat_texture
 			sprite.region_rect = Rect2(frame * RUN_FRAME.size.x, 0, RUN_FRAME.size.x, RUN_FRAME.size.y)
