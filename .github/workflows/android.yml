@@ -1,32 +1,29 @@
-name: Generar APK Automatico
-
-on:
-  push:
-    branches: [ "main", "master" ] # Funciona en cualquier rama principal
+name: "Godot Android Export"
+on: [push, pull_request]
 
 jobs:
-  build:
+  export-android:
+    name: Android Export
     runs-on: ubuntu-latest
-
+    container:
+      image: barichello/godot-ci:4.2.1
     steps:
-    - name: Descargar el codigo
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Configurar Java 17
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Setup El Entorno
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates/
+          mv /root/.local/share/godot/export_templates/* ~/.local/share/godot/export_templates/
 
-    - name: Dar permisos de ejecucion a Gradle
-      run: chmod +x gradlew
+      - name: Crear Directorio de Salida
+        run: mkdir -v -p build/android
 
-    - name: Compilar APK Debug
-      run: ./gradlew assembleDebug
+      - name: Exportar APK con Godot
+        run: godot -v --headless --export-release "Android" build/android/NeonCatStation.apk
 
-    - name: Subir APK terminada
-      uses: actions/upload-artifact@v4
-      with:
-        name: MiAplicacionAPK
-        path: app/build/outputs/apk/debug/*.apk
-        
+      - name: Guardar APK Final
+        uses: actions/upload-artifact@v4
+        with:
+          name: Juego-Android-APK
+          path: build/android/NeonCatStation.apk
