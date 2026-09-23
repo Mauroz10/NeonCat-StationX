@@ -11,6 +11,12 @@ const OLD_CAT_SHEET := preload("res://assets/astro_gato.jpg")
 const CAT_KEY_SHADER := preload("res://shaders/remove_green.gdshader")
 const CAT_REGION := Rect2(135, 80, 984, 1095)
 const CAT_SCALE := 55.0 / 1095.0
+const RUN_FRAME := Rect2(0, 0, 543, 724)
+const RUN_SCALE := 55.0 / 650.0
+const IDLE_REGIONS := [
+	Rect2(12, 15, 531, 651), Rect2(544, 73, 538, 589),
+	Rect2(1095, 25, 533, 681), Rect2(1634, 109, 530, 553)
+]
 const OLD_CAT_SCALE := 0.15
 const FLOOR_Y := 454.0
 const MOVE_SPEED := 260.0
@@ -54,6 +60,8 @@ var afterimages: Array[Dictionary] = []
 var cat_sprite: Sprite2D
 var echo_sprites: Array[Sprite2D] = []
 var clean_cat_texture: Texture2D
+var run_cat_texture: Texture2D
+var idle_cat_texture: Texture2D
 var old_cat_regions: Array[Rect2] = [
 	Rect2(40, 80, 310, 365), Rect2(350, 80, 300, 365),
 	Rect2(660, 80, 330, 365), Rect2(1030, 80, 280, 365),
@@ -69,6 +77,10 @@ func _ready() -> void:
 	var clean_path := "res://assets/astro_gato_clean.png"
 	if ResourceLoader.exists(clean_path):
 		clean_cat_texture = load(clean_path) as Texture2D
+	if ResourceLoader.exists("res://assets/astro_gato_run.png"):
+		run_cat_texture = load("res://assets/astro_gato_run.png") as Texture2D
+	if ResourceLoader.exists("res://assets/astro_gato_idle.png"):
+		idle_cat_texture = load("res://assets/astro_gato_idle.png") as Texture2D
 	cat_sprite = make_cat_sprite()
 	cat_sprite.name = "AstroGato"
 	cat_sprite.z_index = 2
@@ -304,8 +316,26 @@ func current_cat_pose() -> int:
 
 func place_cat_sprite(sprite: Sprite2D, point: Vector2, pose: int, look: float) -> void:
 	if clean_cat_texture != null:
-		# Una sola pose aprobada hasta que existan fotogramas de animación.
-		sprite.position = Vector2(point.x - camera_x - CAT_REGION.size.x * CAT_SCALE * 0.5, point.y + 17.0 - 55.0)
+		if run_cat_texture != null and pose >= 3 and pose <= 4 and dash_timer <= 0.0 and absf(velocity.x) > 10.0 and on_ground():
+			var frame := int(tick * 9.0) % 4
+			sprite.texture = run_cat_texture
+			sprite.region_rect = Rect2(frame * RUN_FRAME.size.x, 0, RUN_FRAME.size.x, RUN_FRAME.size.y)
+			sprite.scale = Vector2.ONE * RUN_SCALE
+			sprite.position = Vector2(point.x - camera_x - RUN_FRAME.size.x * RUN_SCALE * 0.5, point.y + 17.0 - 690.0 * RUN_SCALE)
+		elif idle_cat_texture != null and pose == 0 and absf(velocity.x) <= 10.0 and on_ground():
+			# Las dos poses con proporciones más consistentes evitan cambios bruscos de tamaño.
+			var idle_frame := (int(tick * 2.0) % 2) * 2
+			var idle_rect: Rect2 = IDLE_REGIONS[idle_frame]
+			var idle_scale := 55.0 / idle_rect.size.y
+			sprite.texture = idle_cat_texture
+			sprite.region_rect = idle_rect
+			sprite.scale = Vector2.ONE * idle_scale
+			sprite.position = Vector2(point.x - camera_x - idle_rect.size.x * idle_scale * 0.5, point.y + 17.0 - 55.0)
+		else:
+			sprite.texture = clean_cat_texture
+			sprite.region_rect = CAT_REGION
+			sprite.scale = Vector2.ONE * CAT_SCALE
+			sprite.position = Vector2(point.x - camera_x - CAT_REGION.size.x * CAT_SCALE * 0.5, point.y + 17.0 - 55.0)
 	else:
 		var frame_rect := old_cat_regions[pose]
 		sprite.region_rect = frame_rect
