@@ -16,6 +16,8 @@ const RUN_SCALE := 55.0 / 650.0
 const JUMP_FRAME_WIDTH := 887.0
 const JUMP_SCALE := 55.0 / 850.0
 const JUMP_V2_SCALE := 55.0 / 696.0
+const SHOOT_FRAME_WIDTH := 724.0
+const SHOOT_SCALE := 55.0 / 680.0
 const JUMP_V2_REGIONS := [
 	Rect2(48, 168, 495, 520), Rect2(544, 21, 503, 684),
 	Rect2(1093, 9, 536, 696), Rect2(1629, 24, 521, 676)
@@ -71,6 +73,7 @@ var run_cat_texture: Texture2D
 var idle_cat_texture: Texture2D
 var jump_cat_texture: Texture2D
 var jump_v2_texture: Texture2D
+var shoot_cat_texture: Texture2D
 var jump_elapsed := 0.0
 var old_cat_regions: Array[Rect2] = [
 	Rect2(40, 80, 310, 365), Rect2(350, 80, 300, 365),
@@ -95,6 +98,8 @@ func _ready() -> void:
 		jump_cat_texture = load("res://assets/astro_gato_jump.png") as Texture2D
 	if ResourceLoader.exists("res://assets/astro_gato_jump_v2.png"):
 		jump_v2_texture = load("res://assets/astro_gato_jump_v2.png") as Texture2D
+	if ResourceLoader.exists("res://assets/astro_gato_shoot.png"):
+		shoot_cat_texture = load("res://assets/astro_gato_shoot.png") as Texture2D
 	cat_sprite = make_cat_sprite()
 	cat_sprite.name = "AstroGato"
 	cat_sprite.z_index = 2
@@ -347,6 +352,12 @@ func place_cat_sprite(sprite: Sprite2D, point: Vector2, pose: int, look: float) 
 			sprite.region_rect = Rect2(jump_frame * JUMP_FRAME_WIDTH, 0.0, JUMP_FRAME_WIDTH, 887.0)
 			sprite.scale = Vector2.ONE * JUMP_SCALE
 			sprite.position = Vector2(point.x - camera_x - JUMP_FRAME_WIDTH * JUMP_SCALE * 0.5, point.y - 17.0 - 425.0 * JUMP_SCALE)
+		elif shoot_cat_texture != null and fire_timer > 0.0 and dash_timer <= 0.0 and on_ground():
+			var shoot_frame := 0 if fire_timer > 0.16 else (1 if fire_timer > 0.08 else 2)
+			sprite.texture = shoot_cat_texture
+			sprite.region_rect = Rect2(shoot_frame * SHOOT_FRAME_WIDTH, 0.0, SHOOT_FRAME_WIDTH, 724.0)
+			sprite.scale = Vector2.ONE * SHOOT_SCALE
+			sprite.position = Vector2(point.x - camera_x - SHOOT_FRAME_WIDTH * SHOOT_SCALE * 0.5, point.y + 17.0 - 700.0 * SHOOT_SCALE)
 		elif run_cat_texture != null and pose >= 3 and pose <= 4 and dash_timer <= 0.0 and absf(velocity.x) > 10.0 and on_ground():
 			var frame := int(tick * 9.0) % 4
 			sprite.texture = run_cat_texture
