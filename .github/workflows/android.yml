@@ -10,18 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.2.1
-
     steps:
       - name: Obtener proyecto
         uses: actions/checkout@v4
-
       - name: Comprobar archivos obligatorios
         run: |
           test -s project.godot
           test -s scenes/game.tscn
           test -s scripts/game.gd
           test -s export_presets.cfg
-
       - name: Preparar plantillas y firma de prueba
         run: |
           mkdir -p "$HOME/.local/share/godot/export_templates" "$HOME/.config/godot" build
@@ -29,16 +26,27 @@ jobs:
           cp -a /root/.config/godot/. "$HOME/.config/godot/"
           test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore build/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
-
       - name: Importar recursos y comprobar proyecto
-        run: godot --headless --path . --editor --quit
-
+        run: |
+          godot --headless --path . --editor --quit > build/import.log 2>&1
+          cat build/import.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' build/import.log; then
+            echo 'El proyecto contiene errores de script; no se generará un APK roto.'
+            exit 1
+          fi
+      - name: Iniciar juego y detectar errores
+        run: |
+          godot --headless --path . --quit-after 30 > build/game.log 2>&1
+          cat build/game.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property' build/game.log; then
+            echo 'El juego no inicia correctamente.'
+            exit 1
+          fi
       - name: Generar APK de prueba
         run: |
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
           test -s build/NEON_CAT_STATION_X.apk
           unzip -t build/NEON_CAT_STATION_X.apk | tail -1
-
       - name: Entregar APK
         uses: actions/upload-artifact@v4
         with:
