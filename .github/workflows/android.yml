@@ -1,5 +1,8 @@
-name: "Godot Android Export"
-on: [push, pull_request]
+name: Godot Android Export
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   export-android:
@@ -8,22 +11,25 @@ jobs:
     container:
       image: barichello/godot-ci:4.2.1
     steps:
-      - name: Checkout
+      - name: Obtener proyecto
         uses: actions/checkout@v4
-
-      - name: Setup El Entorno
+      - name: Comprobar archivos obligatorios
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/* ~/.local/share/godot/export_templates/
-
-      - name: Crear Directorio de Salida
-        run: mkdir -v -p build/
-
-      - name: Exportar APK con Godot
-        run: godot -v --headless --export-release "Android" build/NEON_CAT_STATION_X.apk
-
-      - name: Guardar APK Final
+          test -s project.godot
+          test -s scenes/game.tscn
+          test -s scripts/game.gd
+          test -s export_presets.cfg
+      - name: Importar recursos y comprobar proyecto
+        run: godot --headless --path . --editor --quit
+      - name: Generar APK de prueba
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
+          test -s build/NEON_CAT_STATION_X.apk
+          unzip -t build/NEON_CAT_STATION_X.apk | tail -1
+      - name: Entregar APK
         uses: actions/upload-artifact@v4
         with:
-          name: Juego-Android-APK
+          name: NEON_CAT_STATION_X-APK
           path: build/NEON_CAT_STATION_X.apk
+          if-no-files-found: error
