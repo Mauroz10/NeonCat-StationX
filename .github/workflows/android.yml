@@ -1,0 +1,32 @@
+name: Generar APK Automatico
+
+on:
+  push:
+    branches: [ "main", "master" ] # Funciona en cualquier rama principal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar el codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Dar permisos de ejecucion a Gradle
+      run: chmod +x gradlew
+
+    - name: Compilar APK Debug
+      run: ./gradlew assembleDebug
+
+    - name: Subir APK terminada
+      uses: actions/upload-artifact@v4
+      with:
+        name: MiAplicacionAPK
+        path: app/build/outputs/apk/debug/*.apk
+        
