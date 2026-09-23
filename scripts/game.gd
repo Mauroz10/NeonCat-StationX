@@ -683,7 +683,7 @@ func _draw() -> void:
 		draw_rect(Rect2(x - 12, FLOOR_Y - 120, 35, 7), CYAN)
 		draw_circle(Vector2(x + 6, FLOOR_Y - 155), 14, Color("1cc7ee"))
 	for marker_x in [1250.0, 1940.0, 3450.0, 5100.0, 5900.0, 6550.0, 7350.0]:
-		var active := checkpoint.x >= marker_x
+		var active: bool = checkpoint.x >= float(marker_x)
 		draw_rect(Rect2(marker_x - 5.0, FLOOR_Y - 76.0, 10.0, 76.0), Color("257e8e"))
 		draw_circle(Vector2(marker_x, FLOOR_Y - 82.0), 14.0, Color("53ff98") if active else Color("426582"))
 		label("CP", Vector2(marker_x - 13.0, FLOOR_Y - 104.0), 14, Color("53ff98") if active else CYAN)
