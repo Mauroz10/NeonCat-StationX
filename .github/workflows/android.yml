@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.2.1
+
     steps:
       - name: Obtener proyecto
         uses: actions/checkout@v4
@@ -23,9 +24,12 @@ jobs:
 
       - name: Preparar plantillas y firma de prueba
         run: |
-          mkdir -p "$HOME/.local/share/godot/export_templates" build
+          mkdir -p "$HOME/.local/share/godot/export_templates" "$HOME/.config/godot" build
           cp -a /root/.local/share/godot/export_templates/. "$HOME/.local/share/godot/export_templates/"
+          cp -a /root/.config/godot/. "$HOME/.config/godot/"
           test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
+          test -d /usr/lib/android-sdk
+          test -d /usr/lib/jvm/java-17-openjdk-amd64
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore build/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
 
       - name: Importar recursos y comprobar proyecto
