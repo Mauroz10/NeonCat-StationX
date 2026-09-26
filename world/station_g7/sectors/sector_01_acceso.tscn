@@ -1,0 +1,56 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="1_p"]
+[ext_resource type="PackedScene" path="res://enemies/patrol/patrol_enemy.tscn" id="2_patrol"]
+[ext_resource type="PackedScene" path="res://enemies/train/train_enemy.tscn" id="3_train"]
+[ext_resource type="PackedScene" path="res://enemies/turret/turret.tscn" id="4_turret"]
+[ext_resource type="PackedScene" path="res://enemies/drone/drone.tscn" id="5_drone"]
+[ext_resource type="PackedScene" path="res://bosses/sentinel/sentinel.tscn" id="6_boss"]
+[ext_resource type="PackedScene" path="res://world/shared/score_pickup.tscn" id="7_pickup"]
+[ext_resource type="PackedScene" path="res://world/shared/secret_pickup.tscn" id="8_secret"]
+[ext_resource type="PackedScene" path="res://world/shared/checkpoint.tscn" id="9_cp"]
+[ext_resource type="PackedScene" path="res://world/shared/interaction_terminal.tscn" id="10_terminal"]
+[ext_resource type="PackedScene" path="res://world/shared/dash_gate.tscn" id="11_gate"]
+
+[node name="Sector01Acceso" type="Node2D"]
+
+[node name="Platform01" parent="." instance=ExtResource("1_p")]
+position = Vector2(1177.5, 385)
+size = Vector2(155, 18)
+
+[node name="Platform02" parent="." instance=ExtResource("1_p")]
+position = Vector2(1590, 357)
+size = Vector2(160, 18)
+
+[node name="Platform03" parent="." instance=ExtResource("1_p")]
+position = Vector2(1942.5, 386)
+size = Vector2(145, 18)
+
+[node name="Patrol01" parent="." instance=ExtResource("2_patrol")]
+position = Vector2(1230, 436)
+max_health = 3
+patrol_left = 1150
+patrol_right = 1410
+direction = 1
+
+[node name="Patrol02" parent="." instance=ExtResource("2_patrol")]
+position = Vector2(1730, 436)
+max_health = 3
+patrol_left = 1630
+patrol_right = 1840
+direction = -1
+
+[node name="ScorePickup01" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(1160, 345)
+
+[node name="ScorePickup02" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(1590, 317)
+
+[node name="Checkpoint1250" parent="." instance=ExtResource("9_cp")]
+threshold_x = 1200.0
+spawn_x = 1250.0
+
+[node name="TerminalMines1780" parent="." instance=ExtResource("10_terminal")]
+position = Vector2(1780, 437)
+terminal_type = "mines"
+destination_x = 0.0

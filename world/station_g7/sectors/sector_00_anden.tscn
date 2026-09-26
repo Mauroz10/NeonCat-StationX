@@ -1,0 +1,71 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="1_p"]
+[ext_resource type="PackedScene" path="res://enemies/patrol/patrol_enemy.tscn" id="2_patrol"]
+[ext_resource type="PackedScene" path="res://enemies/train/train_enemy.tscn" id="3_train"]
+[ext_resource type="PackedScene" path="res://enemies/turret/turret.tscn" id="4_turret"]
+[ext_resource type="PackedScene" path="res://enemies/drone/drone.tscn" id="5_drone"]
+[ext_resource type="PackedScene" path="res://bosses/sentinel/sentinel.tscn" id="6_boss"]
+[ext_resource type="PackedScene" path="res://world/shared/score_pickup.tscn" id="7_pickup"]
+[ext_resource type="PackedScene" path="res://world/shared/secret_pickup.tscn" id="8_secret"]
+[ext_resource type="PackedScene" path="res://world/shared/checkpoint.tscn" id="9_cp"]
+[ext_resource type="PackedScene" path="res://world/shared/interaction_terminal.tscn" id="10_terminal"]
+[ext_resource type="PackedScene" path="res://world/shared/dash_gate.tscn" id="11_gate"]
+
+[node name="Sector00Anden" type="Node2D"]
+
+[node name="Platform01" parent="." instance=ExtResource("1_p")]
+position = Vector2(420, 381)
+size = Vector2(140, 18)
+
+[node name="Platform02" parent="." instance=ExtResource("1_p")]
+position = Vector2(592.5, 318)
+size = Vector2(135, 16)
+
+[node name="Platform03" parent="." instance=ExtResource("1_p")]
+position = Vector2(770, 346)
+size = Vector2(150, 18)
+
+[node name="Patrol01" parent="." instance=ExtResource("2_patrol")]
+position = Vector2(465, 436)
+max_health = 2
+patrol_left = 385
+patrol_right = 620
+direction = 1
+
+[node name="Train02" parent="." instance=ExtResource("3_train")]
+position = Vector2(840, 436)
+max_health = 3
+patrol_left = 785
+patrol_right = 1020
+direction = -1
+
+[node name="ScorePickup01" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(410, 340)
+
+[node name="ScorePickup02" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(755, 305)
+
+[node name="SecretInitial" parent="." instance=ExtResource("8_secret")]
+position = Vector2(593, 267)
+pickup_id = "initial"
+score_reward = 50
+max_health_reward = 1
+requires_dash = true
+
+[node name="TerminalTram180" parent="." instance=ExtResource("10_terminal")]
+position = Vector2(180, 437)
+terminal_type = "tram"
+destination_x = 6630.0
+
+[node name="DashGate508" parent="." instance=ExtResource("11_gate")]
+position = Vector2(508, 307.5)
+size = Vector2(16, 205)
+
+[node name="DashGate678" parent="." instance=ExtResource("11_gate")]
+position = Vector2(678, 307.5)
+size = Vector2(16, 205)
+
+[node name="DashGate593" parent="." instance=ExtResource("11_gate")]
+position = Vector2(593, 407.5)
+size = Vector2(186, 5)

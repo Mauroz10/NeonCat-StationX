@@ -1,0 +1,64 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="1_p"]
+[ext_resource type="PackedScene" path="res://enemies/patrol/patrol_enemy.tscn" id="2_patrol"]
+[ext_resource type="PackedScene" path="res://enemies/train/train_enemy.tscn" id="3_train"]
+[ext_resource type="PackedScene" path="res://enemies/turret/turret.tscn" id="4_turret"]
+[ext_resource type="PackedScene" path="res://enemies/drone/drone.tscn" id="5_drone"]
+[ext_resource type="PackedScene" path="res://bosses/sentinel/sentinel.tscn" id="6_boss"]
+[ext_resource type="PackedScene" path="res://world/shared/score_pickup.tscn" id="7_pickup"]
+[ext_resource type="PackedScene" path="res://world/shared/secret_pickup.tscn" id="8_secret"]
+[ext_resource type="PackedScene" path="res://world/shared/checkpoint.tscn" id="9_cp"]
+[ext_resource type="PackedScene" path="res://world/shared/interaction_terminal.tscn" id="10_terminal"]
+[ext_resource type="PackedScene" path="res://world/shared/dash_gate.tscn" id="11_gate"]
+
+[node name="Sector04Pozos" type="Node2D"]
+
+[node name="Platform01" parent="." instance=ExtResource("1_p")]
+position = Vector2(3965, 379)
+size = Vector2(210, 18)
+
+[node name="Platform02" parent="." instance=ExtResource("1_p")]
+position = Vector2(4380, 384)
+size = Vector2(160, 18)
+
+[node name="Platform03" parent="." instance=ExtResource("1_p")]
+position = Vector2(4785, 332)
+size = Vector2(150, 18)
+
+[node name="Platform04" parent="." instance=ExtResource("1_p")]
+position = Vector2(4530, 289)
+size = Vector2(160, 18)
+
+[node name="Platform05" parent="." instance=ExtResource("1_p")]
+position = Vector2(4785, 239)
+size = Vector2(210, 18)
+
+[node name="Patrol01" parent="." instance=ExtResource("2_patrol")]
+position = Vector2(4550, 436)
+max_health = 2
+patrol_left = 4460
+patrol_right = 4690
+direction = -1
+
+[node name="Turret02" parent="." instance=ExtResource("4_turret")]
+position = Vector2(4790, 305)
+max_health = 2
+
+[node name="Drone03" parent="." instance=ExtResource("5_drone")]
+position = Vector2(4510, 200)
+max_health = 2
+patrol_left = 4400
+patrol_right = 4850
+direction = -1
+
+[node name="ScorePickup01" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(4760, 295)
+
+[node name="SecretReactor" parent="." instance=ExtResource("8_secret")]
+position = Vector2(4790, 198)
+pickup_id = "reactor"
+score_reward = 75
+max_health_reward = 1
+requires_dash = false
+collect_radius = 30.0

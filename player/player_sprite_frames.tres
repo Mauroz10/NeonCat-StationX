@@ -1,0 +1,110 @@
+[gd_resource type="SpriteFrames" load_steps=28 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/astro_gato_idle.png" id="1_idle"]
+[ext_resource type="Texture2D" path="res://assets/astro_gato_run.png" id="2_run"]
+[ext_resource type="Texture2D" path="res://assets/astro_gato_jump_v2.png" id="3_jump"]
+[ext_resource type="Texture2D" path="res://assets/astro_gato_shoot.png" id="4_shoot"]
+[ext_resource type="Texture2D" path="res://assets/astro_gato_dash_fast.png" id="5_dash"]
+[ext_resource type="Texture2D" path="res://assets/astro_gato_hurt_v2.png" id="6_hurt"]
+
+[sub_resource type="AtlasTexture" id="Atlas_idle_0"]
+atlas = ExtResource("1_idle")
+region = Rect2(12, 15, 531, 651)
+[sub_resource type="AtlasTexture" id="Atlas_idle_1"]
+atlas = ExtResource("1_idle")
+region = Rect2(544, 73, 538, 589)
+[sub_resource type="AtlasTexture" id="Atlas_idle_2"]
+atlas = ExtResource("1_idle")
+region = Rect2(1095, 25, 533, 681)
+[sub_resource type="AtlasTexture" id="Atlas_idle_3"]
+atlas = ExtResource("1_idle")
+region = Rect2(1634, 109, 530, 553)
+
+[sub_resource type="AtlasTexture" id="Atlas_run_0"]
+atlas = ExtResource("2_run")
+region = Rect2(0, 0, 543, 724)
+[sub_resource type="AtlasTexture" id="Atlas_run_1"]
+atlas = ExtResource("2_run")
+region = Rect2(543, 0, 543, 724)
+[sub_resource type="AtlasTexture" id="Atlas_run_2"]
+atlas = ExtResource("2_run")
+region = Rect2(1086, 0, 543, 724)
+[sub_resource type="AtlasTexture" id="Atlas_run_3"]
+atlas = ExtResource("2_run")
+region = Rect2(1629, 0, 543, 724)
+
+[sub_resource type="AtlasTexture" id="Atlas_jump_0"]
+atlas = ExtResource("3_jump")
+region = Rect2(48, 168, 495, 520)
+[sub_resource type="AtlasTexture" id="Atlas_jump_1"]
+atlas = ExtResource("3_jump")
+region = Rect2(544, 21, 503, 684)
+[sub_resource type="AtlasTexture" id="Atlas_jump_2"]
+atlas = ExtResource("3_jump")
+region = Rect2(1093, 9, 536, 696)
+[sub_resource type="AtlasTexture" id="Atlas_jump_3"]
+atlas = ExtResource("3_jump")
+region = Rect2(1629, 24, 521, 676)
+
+[sub_resource type="AtlasTexture" id="Atlas_shoot_0"]
+atlas = ExtResource("4_shoot")
+region = Rect2(0, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_shoot_1"]
+atlas = ExtResource("4_shoot")
+region = Rect2(724, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_shoot_2"]
+atlas = ExtResource("4_shoot")
+region = Rect2(1448, 0, 724, 724)
+
+[sub_resource type="AtlasTexture" id="Atlas_dash_0"]
+atlas = ExtResource("5_dash")
+region = Rect2(0, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_dash_1"]
+atlas = ExtResource("5_dash")
+region = Rect2(724, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_dash_2"]
+atlas = ExtResource("5_dash")
+region = Rect2(1448, 0, 724, 724)
+
+[sub_resource type="AtlasTexture" id="Atlas_hurt_0"]
+atlas = ExtResource("6_hurt")
+region = Rect2(0, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_hurt_1"]
+atlas = ExtResource("6_hurt")
+region = Rect2(724, 0, 724, 724)
+[sub_resource type="AtlasTexture" id="Atlas_hurt_2"]
+atlas = ExtResource("6_hurt")
+region = Rect2(1448, 0, 724, 724)
+
+[resource]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_idle_0")}, {"duration": 1.0, "texture": SubResource("Atlas_idle_2")}],
+"loop": true,
+"name": &"idle",
+"speed": 2.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_run_0")}, {"duration": 1.0, "texture": SubResource("Atlas_run_1")}, {"duration": 1.0, "texture": SubResource("Atlas_run_2")}, {"duration": 1.0, "texture": SubResource("Atlas_run_3")}],
+"loop": true,
+"name": &"run",
+"speed": 9.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_jump_0")}, {"duration": 1.0, "texture": SubResource("Atlas_jump_1")}, {"duration": 1.0, "texture": SubResource("Atlas_jump_2")}, {"duration": 1.0, "texture": SubResource("Atlas_jump_3")}],
+"loop": false,
+"name": &"jump",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_shoot_0")}, {"duration": 1.0, "texture": SubResource("Atlas_shoot_1")}, {"duration": 1.0, "texture": SubResource("Atlas_shoot_2")}],
+"loop": false,
+"name": &"shoot",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_dash_0")}, {"duration": 1.0, "texture": SubResource("Atlas_dash_1")}, {"duration": 1.0, "texture": SubResource("Atlas_dash_2")}],
+"loop": false,
+"name": &"dash",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("Atlas_hurt_0")}, {"duration": 1.0, "texture": SubResource("Atlas_hurt_1")}, {"duration": 1.0, "texture": SubResource("Atlas_hurt_2")}],
+"loop": false,
+"name": &"hurt",
+"speed": 1.0
+}]

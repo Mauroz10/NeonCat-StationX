@@ -1,0 +1,27 @@
+NEON CAT: Station X — Sentinel-G7 integration report
+Date: 2026-09-26
+
+Integration scope
+- AnimatedSprite2D replaces the static Sentinel concept texture.
+- Approved sheets integrated: idle/core, walk, hit, shoot, vertical attack, phase transition, death.
+- Production frames normalized to 256x192 cells with a common feet anchor.
+- Audio cues are semantic aliases over the existing WAV library; no previous audio file was replaced.
+- Sentinel corpse remains on its final death frame during the current session; gameplay groups/hitboxes are disabled immediately at logical defeat.
+
+Regression preservation
+- tests/test_station.gd unchanged from the approved refactor package.
+- export_presets.cfg unchanged.
+- project.godot unchanged.
+- All 23 pre-existing assets under assets/ remain byte-for-byte unchanged; 7 new Sentinel production PNGs were added.
+- Existing boss values remain: 10 HP, phase two at 5 HP, 3/5 fan shots, 3/5 rain strikes, original speeds and exposed windows.
+
+Static checks completed here
+- No duplicate class_name declarations found.
+- scripts/game.gd remains absent.
+- All production Sentinel PNGs exist and contain alpha transparency.
+- Sentinel SpriteFrames atlas references resolve to existing files.
+- GitHub workflow now verifies the new Sentinel SpriteFrames and production assets before import/tests/export.
+
+Runtime verification
+- Godot 4.2.1 is not installed in this execution environment.
+- The authoritative runtime verification remains the user's GitHub Action: 24 PASS / RESULT: 0 failures, followed by APK testing on Android.

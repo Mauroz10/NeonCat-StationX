@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://world/gateways/gateway_room.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="2_platform"]
+[ext_resource type="PackedScene" path="res://world/shared/interaction_terminal.tscn" id="3_terminal"]
+[ext_resource type="PackedScene" path="res://world/shared/world_boundary.tscn" id="9_boundary"]
+
+[node name="FactoryLobby" type="Node2D"]
+script = ExtResource("1_room")
+room_title = "Fábrica Omega"
+mine_theme = false
+
+[node name="Floor" parent="." instance=ExtResource("2_platform")]
+position = Vector2(750, 497)
+size = Vector2(1500, 86)
+one_way = false
+fill_color = Color(0.33333333, 0.20392157, 0.22745098, 1)
+top_color = Color(0.33333333, 0.20392157, 0.22745098, 1)
+show_details = false
+
+[node name="Platform1" parent="." instance=ExtResource("2_platform")]
+fill_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+top_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+show_details = false
+position = Vector2(470, 374)
+size = Vector2(180, 18)
+
+[node name="Platform2" parent="." instance=ExtResource("2_platform")]
+fill_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+top_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+show_details = false
+position = Vector2(800, 299)
+size = Vector2(220, 18)
+
+[node name="Platform3" parent="." instance=ExtResource("2_platform")]
+fill_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+top_color = Color(0.64705882, 0.41960784, 0.27058824, 1)
+show_details = false
+position = Vector2(1110, 369)
+size = Vector2(160, 18)
+
+[node name="Boundaries" type="Node2D" parent="."]
+
+[node name="LeftBoundary" parent="Boundaries" instance=ExtResource("9_boundary")]
+position = Vector2(-29, 270)
+
+[node name="RightBoundary" parent="Boundaries" instance=ExtResource("9_boundary")]
+position = Vector2(1392, 270)
+
+[node name="ReturnTerminal" parent="." instance=ExtResource("3_terminal")]
+position = Vector2(100, 437)
+terminal_type = "return"
+interaction_radius = 70.0

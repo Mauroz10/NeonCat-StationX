@@ -1,0 +1,86 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://world/station_g7/station_g7.gd" id="1_station"]
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="2_platform"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_00_anden.tscn" id="3_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_01_acceso.tscn" id="4_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_02_taller.tscn" id="5_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_03_almacen.tscn" id="6_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_04_pozos.tscn" id="7_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_05_reactor.tscn" id="8_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_06_sentinel.tscn" id="9_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_07_dash.tscn" id="10_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/sectors/sector_08_omega.tscn" id="11_sector"]
+[ext_resource type="PackedScene" path="res://world/station_g7/station_backdrop.tscn" id="12_backdrop"]
+[ext_resource type="PackedScene" path="res://world/shared/world_boundary.tscn" id="13_boundary"]
+
+[node name="StationG7" type="Node2D"]
+script = ExtResource("1_station")
+
+[node name="Backdrop" parent="." instance=ExtResource("12_backdrop")]
+
+[node name="Floor" type="Node2D" parent="."]
+
+[node name="Floor1" parent="Floor" instance=ExtResource("2_platform")]
+position = Vector2(1255, 497)
+size = Vector2(2510, 86)
+one_way = false
+collision_inset_x = 15.0
+fill_color = Color(0.0627451, 0.15686275, 0.32941176, 1)
+top_color = Color(0.09019608, 0.4745098, 0.8745098, 1)
+detail_color = Color(0.09803922, 0.29019608, 0.50196078, 1)
+
+[node name="Floor2" parent="Floor" instance=ExtResource("2_platform")]
+position = Vector2(3275, 497)
+size = Vector2(1250, 86)
+one_way = false
+collision_inset_x = 15.0
+fill_color = Color(0.0627451, 0.15686275, 0.32941176, 1)
+top_color = Color(0.09019608, 0.4745098, 0.8745098, 1)
+detail_color = Color(0.09803922, 0.29019608, 0.50196078, 1)
+
+[node name="Floor3" parent="Floor" instance=ExtResource("2_platform")]
+position = Vector2(4755, 497)
+size = Vector2(1410, 86)
+one_way = false
+collision_inset_x = 15.0
+fill_color = Color(0.0627451, 0.15686275, 0.32941176, 1)
+top_color = Color(0.09019608, 0.4745098, 0.8745098, 1)
+detail_color = Color(0.09803922, 0.29019608, 0.50196078, 1)
+
+[node name="Floor4" parent="Floor" instance=ExtResource("2_platform")]
+position = Vector2(7105, 497)
+size = Vector2(2990, 86)
+one_way = false
+collision_inset_x = 15.0
+fill_color = Color(0.0627451, 0.15686275, 0.32941176, 1)
+top_color = Color(0.09019608, 0.4745098, 0.8745098, 1)
+detail_color = Color(0.09803922, 0.29019608, 0.50196078, 1)
+
+[node name="Boundaries" type="Node2D" parent="."]
+
+[node name="LeftBoundary" parent="Boundaries" instance=ExtResource("13_boundary")]
+position = Vector2(-29, 270)
+
+[node name="RightBoundary" parent="Boundaries" instance=ExtResource("13_boundary")]
+position = Vector2(8627, 270)
+
+[node name="Sectors" type="Node2D" parent="."]
+
+[node name="Sector00" parent="Sectors" instance=ExtResource("3_sector")]
+
+[node name="Sector01" parent="Sectors" instance=ExtResource("4_sector")]
+
+[node name="Sector02" parent="Sectors" instance=ExtResource("5_sector")]
+
+[node name="Sector03" parent="Sectors" instance=ExtResource("6_sector")]
+
+[node name="Sector04" parent="Sectors" instance=ExtResource("7_sector")]
+
+[node name="Sector05" parent="Sectors" instance=ExtResource("8_sector")]
+
+[node name="Sector06" parent="Sectors" instance=ExtResource("9_sector")]
+
+[node name="Sector07" parent="Sectors" instance=ExtResource("10_sector")]
+
+[node name="Sector08" parent="Sectors" instance=ExtResource("11_sector")]

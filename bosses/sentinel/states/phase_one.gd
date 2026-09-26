@@ -1,0 +1,2 @@
+extends SentinelPhase
+class_name SentinelPhaseOne

@@ -1,0 +1,27 @@
+Godot Engine v4.2.1.stable.official.b09f793f5 - https://godotengine.org
+ 
+PASS: primer salto
+PASS: doble salto
+PASS: no tercer salto
+PASS: pozo permite caer sin suelo invisible
+PASS: secreto elevado y recompensa
+PASS: recompensa una sola vez
+PASS: tranvía vuelve al inicio
+PASS: tranvía de regreso al jefe
+PASS: entrada a Minas
+PASS: regreso conserva enemigos y estación
+PASS: entrada a Fábrica
+PASS: mapa congela el juego
+PASS: guardado v3 restaura progreso
+PASS: segunda fase a mitad de vida
+PASS: segunda fase dispara cinco proyectiles
+PASS: descarga de segunda fase
+PASS: derrota del jefe y recompensa
+PASS: secreto inicial requiere dash desbloqueado
+PASS: secreto inicial disponible tras conseguir dash
+PASS: torreta dispara al jugador cercano
+PASS: torreta permanece fija
+PASS: portal bloqueado antes del jefe
+PASS: migración de guardado v1
+PASS: migración de guardado v2
+RESULT: 0 failures

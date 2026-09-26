@@ -1,0 +1,34 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="PackedScene" path="res://world/shared/platform.tscn" id="1_p"]
+[ext_resource type="PackedScene" path="res://enemies/patrol/patrol_enemy.tscn" id="2_patrol"]
+[ext_resource type="PackedScene" path="res://enemies/train/train_enemy.tscn" id="3_train"]
+[ext_resource type="PackedScene" path="res://enemies/turret/turret.tscn" id="4_turret"]
+[ext_resource type="PackedScene" path="res://enemies/drone/drone.tscn" id="5_drone"]
+[ext_resource type="PackedScene" path="res://bosses/sentinel/sentinel.tscn" id="6_boss"]
+[ext_resource type="PackedScene" path="res://world/shared/score_pickup.tscn" id="7_pickup"]
+[ext_resource type="PackedScene" path="res://world/shared/secret_pickup.tscn" id="8_secret"]
+[ext_resource type="PackedScene" path="res://world/shared/checkpoint.tscn" id="9_cp"]
+[ext_resource type="PackedScene" path="res://world/shared/interaction_terminal.tscn" id="10_terminal"]
+[ext_resource type="PackedScene" path="res://world/shared/dash_gate.tscn" id="11_gate"]
+
+[node name="Sector06Sentinel" type="Node2D"]
+
+[node name="Platform01" parent="." instance=ExtResource("1_p")]
+position = Vector2(5842.5, 328)
+size = Vector2(145, 18)
+
+[node name="Boss01" parent="." instance=ExtResource("6_boss")]
+position = Vector2(6250, 418)
+
+[node name="ScorePickup01" parent="." instance=ExtResource("7_pickup")]
+position = Vector2(5810, 287)
+
+[node name="Checkpoint5900" parent="." instance=ExtResource("9_cp")]
+threshold_x = 5850.0
+spawn_x = 5900.0
+
+[node name="TerminalTram6630" parent="." instance=ExtResource("10_terminal")]
+position = Vector2(6630, 437)
+terminal_type = "tram"
+destination_x = 180.0

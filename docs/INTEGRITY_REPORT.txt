@@ -1,0 +1,40 @@
+NEON CAT: Station X - Static integrity report
+Generated for the refactored G-7 0.3.0 package.
+
+Authoritative functional baseline:
+  NEON_CAT_G7_0.3.0_PROYECTO_COMPLETO(1).zip
+
+Runtime verification status:
+  NOT EXECUTED in this environment after the refactor.
+  The GitHub Action included in this package is the authoritative next check.
+  Expected result: 24 PASS lines and RESULT: 0 failures.
+
+Static checks completed before packaging:
+  - missing res:// references: 0
+  - orphan ExtResource references: 0
+  - duplicate function names within scripts: 0
+  - duplicate class_name declarations: 0
+  - old scripts/game.gd: absent
+  - assets/ differences vs baseline ZIP: 0
+  - export_presets.cfg vs baseline ZIP: byte-for-byte identical
+  - shaders/remove_green.gdshader vs baseline ZIP: byte-for-byte identical
+  - tools/verify_apk.py vs baseline ZIP: byte-for-byte identical
+  - test labels: identical to baseline
+
+Frozen baseline hashes retained:
+  export_presets.cfg
+    SHA256 9b09466d847b1d1c9f634054e2258029a6a48cf061ba3d5b8115ade8848c7888
+  shaders/remove_green.gdshader
+    SHA256 036c1aa72c3d86917559bffceee1ba2e9d61d376774a5b01296f4c290aae1add
+  tools/verify_apk.py
+    SHA256 0fffcbfae32d736d42bcb8af8f1f2438a1b28877ba86dd59c2512e67e9c37699
+
+Project structure counts at packaging time:
+  GDScript files: 33
+  TSCN scenes: 36
+  TRES resources: 1
+  assets/ files: 23
+
+Important:
+  docs/pruebas_godot_4_2_1.txt remains the BASELINE pre-refactor log only.
+  Do not treat it as a post-refactor execution result.

@@ -13,12 +13,32 @@ jobs:
     steps:
       - name: Obtener proyecto
         uses: actions/checkout@v4
-      - name: Comprobar archivos obligatorios
+
+      - name: Comprobar arquitectura y archivos obligatorios
         run: |
           test -s project.godot
           test -s scenes/game.tscn
-          test -s scripts/game.gd
+          test -s game/game_manager.gd
+          test -s player/player.gd
+          test -s player/player.tscn
+          test -s world/station_g7/station_g7.tscn
+          test -s bosses/sentinel/sentinel.tscn
+          test -s bosses/sentinel/sentinel_sprite_frames.tres
+          test -s assets/bosses/sentinel/sentinel_walk.png
+          test -s assets/bosses/sentinel/sentinel_hit.png
+          test -s assets/bosses/sentinel/sentinel_shoot.png
+          test -s assets/bosses/sentinel/sentinel_vertical_attack.png
+          test -s assets/bosses/sentinel/sentinel_phase_transition.png
+          test -s assets/bosses/sentinel/sentinel_death.png
+          test -s autoload/save_system.gd
+          test -s tests/test_station.gd
           test -s export_presets.cfg
+          test ! -e scripts/game.gd
+          grep -qx 'window/size/viewport_width=960' project.godot
+          grep -qx 'window/size/viewport_height=540' project.godot
+          grep -qx 'window/handheld/orientation=0' project.godot
+          grep -qx 'screen/orientation=0' export_presets.cfg
+
       - name: Preparar plantillas y firma de prueba
         run: |
           mkdir -p "$HOME/.local/share/godot/export_templates" "$HOME/.config/godot" build
@@ -26,27 +46,43 @@ jobs:
           cp -a /root/.config/godot/. "$HOME/.config/godot/"
           test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore build/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
       - name: Importar recursos y comprobar proyecto
         run: |
           godot --headless --path . --editor --quit > build/import.log 2>&1
           cat build/import.log
-          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script' build/import.log; then
-            echo 'El proyecto contiene errores de script; no se generará un APK roto.'
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Cannot load resource' build/import.log; then
+            echo 'El proyecto contiene errores de script o recursos; no se generará un APK roto.'
             exit 1
           fi
+
       - name: Iniciar juego y detectar errores
         run: |
           godot --headless --path . --quit-after 30 > build/game.log 2>&1
           cat build/game.log
-          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property' build/game.log; then
+          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property|Cannot load resource' build/game.log; then
             echo 'El juego no inicia correctamente.'
             exit 1
           fi
+
+      - name: Probar los 24 comportamientos de regresión
+        run: |
+          set +e
+          NEON_TEST_RUN=1 XDG_DATA_HOME="$PWD/build/test_userdata" godot --headless --path . --script res://tests/test_station.gd > build/tests.log 2>&1
+          test_status=$?
+          set -e
+          cat build/tests.log
+          test "$test_status" -eq 0
+          grep -q '^RESULT: 0 failures$' build/tests.log
+          test "$(grep -c '^PASS:' build/tests.log)" -eq 24
+
       - name: Generar APK de prueba
         run: |
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
           test -s build/NEON_CAT_STATION_X.apk
           unzip -t build/NEON_CAT_STATION_X.apk | tail -1
+          python3 tools/verify_apk.py build/NEON_CAT_STATION_X.apk
+
       - name: Entregar APK
         uses: actions/upload-artifact@v4
         with:

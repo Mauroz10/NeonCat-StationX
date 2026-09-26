@@ -6,6 +6,14 @@ var sounds: Dictionary = {}
 var tracks: Dictionary = {}
 var current_track := ""
 var next_voice := 0
+var sound_aliases := {
+	"sentinel_charge": "alarm",
+	"sentinel_shot": "enemy_shot",
+	"sentinel_hit": "hit",
+	"sentinel_phase2": "alarm",
+	"sentinel_death_fault": "hurt",
+	"sentinel_death_impact": "hit",
+}
 
 func _ready() -> void:
 	music = AudioStreamPlayer.new()
@@ -36,9 +44,10 @@ func update_music(boss_fight: bool, enabled: bool) -> void:
 
 func play_effect(name: String) -> void:
 	if DisplayServer.get_name() == "headless": return
-	if not sounds.has(name): return
+	var resolved_name: String = str(sound_aliases.get(name, name))
+	if not sounds.has(resolved_name): return
 	var voice: AudioStreamPlayer = effects[next_voice]
-	voice.stream = sounds[name]
+	voice.stream = sounds[resolved_name]
 	voice.play()
 	next_voice = (next_voice + 1) % effects.size()
 
