@@ -141,10 +141,11 @@ func run_checks() -> void:
 	game.player.velocity = Vector2.ZERO
 	game.player.grounded_hint = false
 
+	# Esta prueba necesita frames físicos reales porque
+	# CharacterBody2D y move_and_slide() dependen del ciclo
+	# de física de Godot.
 	for _i in range(12):
-		game.simulate_game_step(
-			1.0 / 60.0
-		)
+		await physics_frame
 
 	check(
 		game.player.global_position.y > 450,
@@ -305,8 +306,6 @@ func run_checks() -> void:
 
 	game.current_station.complete = true
 
-	# Conservamos el estado del jefe derrotado y el secreto que
-	# ya se obtuvieron durante las pruebas anteriores.
 	game.save_progress()
 
 	game.reset_level()
