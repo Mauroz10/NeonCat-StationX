@@ -1,4 +1,5 @@
 name: Godot Android Export
+
 on:
   push:
   pull_request:
@@ -8,8 +9,10 @@ jobs:
   export-android:
     name: Android Export
     runs-on: ubuntu-latest
+
     container:
       image: barichello/godot-ci:4.2.1
+
     steps:
       - name: Obtener proyecto
         uses: actions/checkout@v4
@@ -34,6 +37,7 @@ jobs:
           test -s tests/test_station.gd
           test -s export_presets.cfg
           test ! -e scripts/game.gd
+
           grep -qx 'window/size/viewport_width=960' project.godot
           grep -qx 'window/size/viewport_height=540' project.godot
           grep -qx 'window/handheld/orientation=0' project.godot
@@ -41,50 +45,148 @@ jobs:
 
       - name: Preparar plantillas y firma de prueba
         run: |
-          mkdir -p "$HOME/.local/share/godot/export_templates" "$HOME/.config/godot" build
-          cp -a /root/.local/share/godot/export_templates/. "$HOME/.local/share/godot/export_templates/"
-          cp -a /root/.config/godot/. "$HOME/.config/godot/"
-          test -s "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
-          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore build/debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+          mkdir -p "$HOME/.local/share/godot/export_templates"
+          mkdir -p "$HOME/.config/godot"
+          mkdir -p build
+
+          cp -a /root/.local/share/godot/export_templates/. \
+            "$HOME/.local/share/godot/export_templates/"
+
+          cp -a /root/.config/godot/. \
+            "$HOME/.config/godot/"
+
+          test -s \
+            "$HOME/.local/share/godot/export_templates/4.2.1.stable/android_debug.apk"
+
+          keytool \
+            -keyalg RSA \
+            -genkeypair \
+            -alias androiddebugkey \
+            -keypass android \
+            -keystore build/debug.keystore \
+            -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -validity 9999 \
+            -deststoretype pkcs12
 
       - name: Importar recursos y comprobar proyecto
         run: |
-          godot --headless --path . --editor --quit > build/import.log 2>&1
+          godot \
+            --headless \
+            --path . \
+            --editor \
+            --quit \
+            > build/import.log 2>&1
+
           cat build/import.log
-          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Cannot load resource' build/import.log; then
+
+          if grep -E \
+            'SCRIPT ERROR:|Parse Error:|Failed to load script|Cannot load resource' \
+            build/import.log
+          then
             echo 'El proyecto contiene errores de script o recursos; no se generará un APK roto.'
             exit 1
           fi
 
       - name: Iniciar juego y detectar errores
+        timeout-minutes: 2
         run: |
-          godot --headless --path . --quit-after 30 > build/game.log 2>&1
-          cat build/game.log
-          if grep -E 'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property|Cannot load resource' build/game.log; then
+          set +e
+
+          timeout --kill-after=10s 60s \
+            godot \
+            --headless \
+            --path . \
+            --quit-after 30 \
+            > build/game.log 2>&1
+
+          game_status=$?
+
+          cat build/game.log || true
+
+          set -e
+
+          if [ "$game_status" -eq 124 ]; then
+            echo 'ERROR: el juego no terminó dentro del tiempo esperado.'
+            exit 1
+          fi
+
+          if grep -E \
+            'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property|Cannot load resource' \
+            build/game.log
+          then
             echo 'El juego no inicia correctamente.'
             exit 1
           fi
 
+          test "$game_status" -eq 0
+
       - name: Probar los 24 comportamientos de regresión
+        timeout-minutes: 4
         run: |
           set +e
-          NEON_TEST_RUN=1 XDG_DATA_HOME="$PWD/build/test_userdata" godot --headless --path . --script res://tests/test_station.gd > build/tests.log 2>&1
+
+          timeout --kill-after=10s 120s \
+            env \
+            NEON_TEST_RUN=1 \
+            XDG_DATA_HOME="$PWD/build/test_userdata" \
+            godot \
+            --headless \
+            --path . \
+            --script res://tests/test_station.gd \
+            > build/tests.log 2>&1
+
           test_status=$?
+
+          cat build/tests.log || true
+
           set -e
-          cat build/tests.log
+
+          if [ "$test_status" -eq 124 ]; then
+            echo 'ERROR: las pruebas se bloquearon durante más de 120 segundos.'
+            exit 1
+          fi
+
+          if grep -E \
+            'SCRIPT ERROR:|Parse Error:|Failed to load script|Invalid call\.|Invalid access to property|Cannot load resource' \
+            build/tests.log
+          then
+            echo 'ERROR: las pruebas encontraron un error de Godot.'
+            exit 1
+          fi
+
           test "$test_status" -eq 0
-          grep -q '^RESULT: 0 failures$' build/tests.log
+
+          grep -q '^RESULT: 0 failures$' \
+            build/tests.log
+
           test "$(grep -c '^PASS:' build/tests.log)" -eq 24
 
       - name: Generar APK de prueba
+        timeout-minutes: 10
         run: |
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android godot --headless --path . --export-debug "Android" build/NEON_CAT_STATION_X.apk
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$PWD/build/debug.keystore" \
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey \
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android \
+          godot \
+            --headless \
+            --path . \
+            --export-debug "Android" \
+            build/NEON_CAT_STATION_X.apk
+
           test -s build/NEON_CAT_STATION_X.apk
-          unzip -t build/NEON_CAT_STATION_X.apk | tail -1
-          python3 tools/verify_apk.py build/NEON_CAT_STATION_X.apk
+
+          unzip -t \
+            build/NEON_CAT_STATION_X.apk \
+            | tail -1
+
+          python3 \
+            tools/verify_apk.py \
+            build/NEON_CAT_STATION_X.apk
 
       - name: Entregar APK
         uses: actions/upload-artifact@v4
+
         with:
           name: NEON_CAT_STATION_X-APK
           path: build/NEON_CAT_STATION_X.apk
