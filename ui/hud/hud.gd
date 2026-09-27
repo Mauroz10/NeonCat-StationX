@@ -1,4 +1,4 @@
-extends Node2D
+﻿extends Node2D
 
 const CYAN := Color("3ce9ff")
 const CYAN_SOFT := Color("8df4ff")
@@ -224,7 +224,7 @@ func _coin(center: Vector2) -> void:
 
 
 func _secret_icon(center: Vector2) -> void:
-    draw_circle(center, 10.0, CYAN, false, 3.0)
+    draw_arc(center, 10.0, 0.0, TAU, 32, CYAN, 3.0)
     draw_circle(center, 3.0, CYAN)
     for i in range(8):
         var angle := TAU * float(i) / 8.0
@@ -252,3 +252,6 @@ func label(
         size,
         color
     )
+
+
+
