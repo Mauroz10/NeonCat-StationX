@@ -19,7 +19,7 @@ script = ExtResource("1_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("PlayerShape")
 
-[node name="Animator" type="Node" parent="."]
+[node name="Animator" type="Node2D" parent="."]
 script = ExtResource("2_animator")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Animator"]
@@ -28,6 +28,7 @@ animation = &"idle"
 centered = false
 texture_filter = 1
 z_index = 6
+visible = true
 
 [node name="Effects" type="Node2D" parent="."]
 z_index = 5
