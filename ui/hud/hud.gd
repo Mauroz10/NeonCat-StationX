@@ -1,293 +1,254 @@
 extends Node2D
 
-const WORLD_END := 8600.0
 const CYAN := Color("3ce9ff")
-const ORANGE := Color("ff9940")
-const BUILD_LABEL := "0.3.0 · G7"
+const CYAN_SOFT := Color("8df4ff")
+const BLUE_DARK := Color(0.025, 0.075, 0.16, 0.94)
+const BLUE_MID := Color("12355c")
+const BLUE_EDGE := Color("2f86bf")
+const RED_HEART := Color("ff4f6d")
+const HEART_EMPTY := Color("29425f")
+const GOLD := Color("ffc928")
+const GREEN := Color("53ff98")
+const WHITE := Color("eaf9ff")
+const PLAYER_PORTRAIT: Texture2D = preload(
+    "res://assets/characters/player/player_portrait.png"
+)
 
 var game: Node
 
 
 func _process(_delta: float) -> void:
-	queue_redraw()
+    queue_redraw()
 
 
 func _draw() -> void:
-	if (
-		game == null
-		or game.player == null
-	):
-		return
+    if game == null or game.player == null:
+        return
 
-	var progress_x: float = float(
-		game.station_player_x()
-	)
+    _draw_player_panel()
+    _draw_collectible_panel()
+    _draw_temporary_notice()
+    _draw_interaction_prompt()
 
-	draw_rect(
-		Rect2(
-			24,
-			91,
-			235,
-			5
-		),
-		Color("264465")
-	)
 
-	draw_rect(
-		Rect2(
-			24,
-			91,
-			235.0
-			* clampf(
-				progress_x / WORLD_END,
-				0.0,
-				1.0
-			),
-			5
-		),
-		CYAN
-	)
+func _draw_player_panel() -> void:
+    var panel := Rect2(12, 10, 280, 78)
+    _panel(panel)
 
-	label(
-		"RECORRIDO %d%%"
-		% int(
-			progress_x
-			/ WORLD_END
-			* 100.0
-		),
-		Vector2(
-			24,
-			115
-		),
-		14,
-		CYAN
-	)
+    var portrait_frame := Rect2(18, 16, 60, 60)
+    draw_rect(portrait_frame, Color("071628"))
+    draw_rect(portrait_frame, BLUE_EDGE, false, 2.0)
+    draw_texture_rect(
+        PLAYER_PORTRAIT,
+        Rect2(20, 18, 56, 56),
+        false
+    )
 
-	if game.save_notice_timer > 0.0:
-		label(
-			game.save_notice,
-			Vector2(
-				720,
-				112
-			),
-			17,
-			Color("53ff98")
-		)
+    var health_x := 88.0
+    for i in range(game.player.max_health):
+        _heart(
+            Vector2(health_x + float(i) * 20.0, 20.0),
+            i < game.player.health
+        )
 
-	draw_rect(
-		Rect2(
-			12,
-			12,
-			322,
-			68
-		),
-		Color("0b2244")
-	)
+    _lightning(Vector2(88, 55))
 
-	label(
-		"ESTACIÓN G-7"
-		if game.room_name == ""
-		else game.room_name.to_upper(),
-		Vector2(
-			23,
-			38
-		),
-		18,
-		CYAN
-	)
+    var bar_rect := Rect2(109, 57, 145, 12)
+    draw_rect(bar_rect, Color("17314f"))
+    draw_rect(bar_rect, BLUE_EDGE, false, 1.5)
 
-	for i in range(
-		game.player.max_health
-	):
-		draw_rect(
-			Rect2(
-				24 + i * 20,
-				52,
-				14,
-				16
-			),
-			ORANGE
-			if i < game.player.health
-			else Color("324865")
-		)
+    var dash_charge := 0.0
+    if game.player.dash_unlocked:
+        dash_charge = clampf(
+            1.0 - game.player.dash_cooldown / 1.5,
+            0.0,
+            1.0
+        )
 
-	label(
-		"ENERGÍA: %d"
-		% game.score,
-		Vector2(
-			195,
-			68
-		),
-		16,
-		Color.WHITE
-	)
+    draw_rect(
+        Rect2(
+            bar_rect.position + Vector2(2, 2),
+            Vector2(
+                (bar_rect.size.x - 4.0) * dash_charge,
+                bar_rect.size.y - 4.0
+            )
+        ),
+        CYAN
+    )
 
-	var icon := Vector2(
-		360,
-		65
-	)
+    for i in range(2):
+        draw_circle(
+            Vector2(266.0 + float(i) * 10.0, 63.0),
+            3.3,
+            CYAN
+            if game.player.jumps_used <= i
+            else HEART_EMPTY
+        )
 
-	draw_circle(
-		icon,
-		15,
-		Color("16385a")
-	)
 
-	draw_arc(
-		icon,
-		15,
-		0,
-		TAU,
-		24,
-		Color("506887"),
-		3
-	)
+func _draw_collectible_panel() -> void:
+    var panel := Rect2(730, 10, 218, 54)
+    _panel(panel)
 
-	if game.player.dash_unlocked:
-		var charge := clampf(
-			1.0
-			- game.player.dash_cooldown
-			/ 1.5,
-			0.0,
-			1.0
-		)
+    _coin(Vector2(752, 37))
+    label(
+        "%03d" % game.score,
+        Vector2(772, 45),
+        21,
+        WHITE
+    )
 
-		if charge > 0.0:
-			draw_arc(
-				icon,
-				15,
-				-PI / 2.0,
-				-PI / 2.0
-				+ TAU * charge,
-				24,
-				Color("53ff98"),
-				4
-			)
+    draw_line(
+        Vector2(836, 18),
+        Vector2(836, 56),
+        Color("1d537e"),
+        2.0
+    )
 
-	label(
-		"D",
-		icon + Vector2(
-			-6,
-			6
-		),
-		17,
-		Color("53ff98")
-		if game.player.dash_unlocked
-		else Color("506887")
-	)
+    _secret_icon(Vector2(862, 37))
+    label(
+        "%d/3" % game.secret_count(),
+        Vector2(884, 45),
+        20,
+        WHITE
+    )
 
-	for i in range(2):
-		draw_circle(
-			Vector2(
-				872.0
-				+ float(i) * 17.0,
-				65.0
-			),
-			5.0,
-			CYAN
-			if game.player.jumps_used <= i
-			else Color("3b5471")
-		)
 
-	label(
-		"2× SALTO",
-		Vector2(
-			845,
-			88
-		),
-		13,
-		CYAN
-	)
+func _draw_temporary_notice() -> void:
+    var notice := ""
+    var notice_color := CYAN_SOFT
 
-	label(
-		"NEON CAT  ·  "
-		+ BUILD_LABEL,
-		Vector2(
-			350,
-			32
-		),
-		15,
-		Color("bbdfff")
-	)
+    if game.unlock_timer > 0.0:
+        notice = "DASH DESBLOQUEADO"
+        notice_color = CYAN
+    elif game.save_notice_timer > 0.0:
+        notice = str(game.save_notice)
+        notice_color = GREEN
 
-	if game.unlock_timer > 0.0:
-		label(
-			"¡DASH DESBLOQUEADO! Cruza la compuerta violeta",
-			Vector2(
-				280,
-				106
-			),
-			21,
-			CYAN
-		)
+    if notice == "":
+        return
 
-	elif not game.player.dash_unlocked:
-		label(
-			"Regresa luego por el ítem verde · Derrota al guardián",
-			Vector2(
-				390,
-				61
-			),
-			16,
-			ORANGE
-		)
+    var rect := Rect2(330, 16, 300, 42)
+    draw_rect(rect, Color(0.02, 0.08, 0.16, 0.92))
+    draw_rect(rect, notice_color, false, 1.5)
+    draw_string(
+        ThemeDB.fallback_font,
+        Vector2(rect.position.x, rect.position.y + 27),
+        notice,
+        HORIZONTAL_ALIGNMENT_CENTER,
+        rect.size.x,
+        17,
+        notice_color
+    )
 
-	else:
-		label(
-			"DASH listo"
-			if game.player.dash_cooldown <= 0.0
-			else "DASH recargando",
-			Vector2(
-				530,
-				61
-			),
-			17,
-			CYAN
-		)
 
-	if (
-		game.player.dash_unlocked
-		and not game.secret_collected()
-		and progress_x > 1350.0
-	):
-		label(
-			"Tranvía activo: vuelve por el ítem verde",
-			Vector2(
-				305,
-				104
-			),
-			17,
-			Color("53ff98")
-		)
+func _draw_interaction_prompt() -> void:
+    var prompt := str(game.interaction_name())
+    if prompt == "":
+        return
 
-	var prompt: String = str(
-		game.interaction_name()
-	)
+    var rect := Rect2(320, 392, 320, 36)
+    draw_rect(rect, Color(0.02, 0.08, 0.16, 0.88))
+    draw_rect(rect, CYAN, false, 1.5)
+    draw_string(
+        ThemeDB.fallback_font,
+        Vector2(rect.position.x, rect.position.y + 24),
+        prompt,
+        HORIZONTAL_ALIGNMENT_CENTER,
+        rect.size.x,
+        15,
+        CYAN_SOFT
+    )
 
-	if prompt != "":
-		label(
-			prompt,
-			Vector2(
-				340,
-				397
-			),
-			17,
-			CYAN
-		)
+
+func _panel(rect: Rect2) -> void:
+    draw_rect(rect, BLUE_DARK)
+    draw_rect(rect, Color("0d2a4d"), false, 3.0)
+    draw_rect(
+        Rect2(rect.position + Vector2(3, 3), rect.size - Vector2(6, 6)),
+        BLUE_EDGE,
+        false,
+        1.0
+    )
+
+
+func _heart(pos: Vector2, filled: bool) -> void:
+    var color := RED_HEART if filled else HEART_EMPTY
+    draw_rect(Rect2(pos + Vector2(3, 0), Vector2(5, 5)), color)
+    draw_rect(Rect2(pos + Vector2(11, 0), Vector2(5, 5)), color)
+    draw_rect(Rect2(pos + Vector2(0, 4), Vector2(19, 7)), color)
+    draw_rect(Rect2(pos + Vector2(3, 11), Vector2(13, 4)), color)
+    draw_rect(Rect2(pos + Vector2(6, 15), Vector2(7, 4)), color)
+
+
+func _lightning(pos: Vector2) -> void:
+    var points := PackedVector2Array([
+        pos + Vector2(8, 0),
+        pos + Vector2(1, 11),
+        pos + Vector2(7, 11),
+        pos + Vector2(3, 22),
+        pos + Vector2(17, 8),
+        pos + Vector2(10, 8),
+        pos + Vector2(14, 0),
+    ])
+    draw_colored_polygon(points, CYAN)
+
+
+func _coin(center: Vector2) -> void:
+    var points := PackedVector2Array([
+        center + Vector2(-7, -10),
+        center + Vector2(7, -10),
+        center + Vector2(10, -6),
+        center + Vector2(10, 6),
+        center + Vector2(7, 10),
+        center + Vector2(-7, 10),
+        center + Vector2(-10, 6),
+        center + Vector2(-10, -6),
+    ])
+    draw_colored_polygon(points, GOLD)
+    draw_polyline(
+        PackedVector2Array([
+            center + Vector2(-4, -7),
+            center + Vector2(4, -7),
+            center + Vector2(7, -4),
+            center + Vector2(7, 4),
+            center + Vector2(4, 7),
+            center + Vector2(-4, 7),
+            center + Vector2(-7, 4),
+            center + Vector2(-7, -4),
+            center + Vector2(-4, -7),
+        ]),
+        Color("ff7a18"),
+        2.0
+    )
+
+
+func _secret_icon(center: Vector2) -> void:
+    draw_circle(center, 10.0, CYAN, false, 3.0)
+    draw_circle(center, 3.0, CYAN)
+    for i in range(8):
+        var angle := TAU * float(i) / 8.0
+        var direction := Vector2(cos(angle), sin(angle))
+        draw_line(
+            center + direction * 10.0,
+            center + direction * 14.0,
+            CYAN,
+            3.0
+        )
 
 
 func label(
-	value: String,
-	pos: Vector2,
-	size: int,
-	color: Color
+    value: String,
+    pos: Vector2,
+    size: int,
+    color: Color
 ) -> void:
-	draw_string(
-		ThemeDB.fallback_font,
-		pos,
-		value,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		size,
-		color
-	)
+    draw_string(
+        ThemeDB.fallback_font,
+        pos,
+        value,
+        HORIZONTAL_ALIGNMENT_LEFT,
+        -1,
+        size,
+        color
+    )

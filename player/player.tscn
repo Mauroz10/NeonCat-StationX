@@ -23,7 +23,8 @@ shape = SubResource("PlayerShape")
 script = ExtResource("2_animator")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Animator"]
-position = Vector2(0, -15)
+position = Vector2(0, -20.5)
+scale = Vector2(1.17, 1.17)
 sprite_frames = ExtResource("4_frames")
 animation = &"idle"
 centered = true
