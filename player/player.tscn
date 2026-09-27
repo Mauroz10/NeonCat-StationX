@@ -23,9 +23,10 @@ shape = SubResource("PlayerShape")
 script = ExtResource("2_animator")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Animator"]
+position = Vector2(0, -15)
 sprite_frames = ExtResource("4_frames")
 animation = &"idle"
-centered = false
+centered = true
 texture_filter = 1
 z_index = 6
 visible = true
